@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tình Thế Tiến Thoái Lưỡng Nan Của Người Tù</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">🎯 Tình Thế Tiến Thoái Lưỡng Nan</h1>
+            <p class="text-xl text-blue-100">Trò chơi tâm lý về hợp tác và cạnh tranh</p>
+        </div>
+
+        <!-- Game Setup -->
+        <div id="setup-screen" class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl card-shadow p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">📋 Luật Chơi</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Ma Trận Điểm:</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="text-sm space-y-2">
+                                <div class="flex items-center"><span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>Cả hai Hợp tác: <strong>5 điểm mỗi người</strong></div>
+                                <div class="flex items-center"><span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>Một Đào tẩu, một Hợp tác: <strong>8-0 điểm</strong></div>
+                                <div class="flex items-center"><span class="w-3 h-3 bg-gray-500 rounded-full mr-2"></span>Cả hai Đào tẩu: <strong>2 điểm mỗi người</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Quy Tắc:</h3>
+                        <ul class="text-sm space-y-2 text-gray-600">
+                            <li>• Không được giao tiếp với đối tác</li>
+                            <li>• Quyết định độc lập và bí mật</li>
+                            <li>• Chơi qua nhiều vòng</li>
+                            <li>• Mục tiêu: Tối đa hóa điểm số</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Thiết Lập Trò Chơi</h3>
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tên Người Chơi 1:</label>
+                        <input type="text" id="player1-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nhập tên..." value="Người chơi 1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tên Người Chơi 2:</label>
+                        <input type="text" id="player2-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nhập tên..." value="Người chơi 2">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Số vòng chơi:</label>
+                    <select id="rounds-select" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="5">5 vòng</option>
+                        <option value="10" selected>10 vòng</option>
+                        <option value="15">15 vòng</option>
+                        <option value="20">20 vòng</option>
+                    </select>
+                </div>
+                <button onclick="startGame()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+                    🚀 Bắt Đầu Trò Chơi
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden max-w-6xl mx-auto">
+            <!-- Game Status -->
+            <div class="bg-white rounded-xl card-shadow p-6 mb-6">
+                <div class="flex justify-between items-center">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="current-round">Vòng 1</div>
+                        <div class="text-sm text-gray-600">của <span id="total-rounds">10</span> vòng</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold text-gray-700">Trạng Thái</div>
+                        <div class="text-sm" id="game-status">Đang chờ lựa chọn...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Player Panels -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <!-- Player 1 -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800" id="player1-display">Người chơi 1</h3>
+                        <div class="text-3xl font-bold text-blue-600" id="player1-score">0</div>
+                        <div class="text-sm text-gray-600">điểm</div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="makeChoice(1, 'cooperate')" id="p1-cooperate" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+                            🤝 Hợp Tác
+                        </button>
+                        <button onclick="makeChoice(1, 'defect')" id="p1-defect" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+                            🏃 Đào Tẩu
+                        </button>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <div id="p1-choice-status" class="text-sm text-gray-500">Chưa chọn</div>
+                    </div>
+                </div>
+
+                <!-- Player 2 -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800" id="player2-display">Người chơi 2</h3>
+                        <div class="text-3xl font-bold text-purple-600" id="player2-score">0</div>
+                        <div class="text-sm text-gray-600">điểm</div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="makeChoice(2, 'cooperate')" id="p2-cooperate" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+                            🤝 Hợp Tác
+                        </button>
+                        <button onclick="makeChoice(2, 'defect')" id="p2-defect" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200">
+                            🏃 Đào Tẩu
+                        </button>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <div id="p2-choice-status" class="text-sm text-gray-500">Chưa chọn</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reveal Button -->
+            <div class="text-center mb-6">
+                <button onclick="revealChoices()" id="reveal-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    🎭 Công Bố Kết Quả
+                </button>
+            </div>
+
+            <!-- Round Result -->
+            <div id="round-result" class="hidden bg-white rounded-xl card-shadow p-6 mb-6">
+                <h3 class="text-xl font-bold text-center mb-4">Kết Quả Vòng <span id="result-round"></span></h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="text-center">
+                        <div class="text-lg font-semibold" id="p1-result-name">Người chơi 1</div>
+                        <div class="text-2xl mb-2" id="p1-choice-icon">🤝</div>
+                        <div class="text-lg" id="p1-choice-text">Hợp tác</div>
+                        <div class="text-xl font-bold text-blue-600">+<span id="p1-points">5</span> điểm</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold" id="p2-result-name">Người chơi 2</div>
+                        <div class="text-2xl mb-2" id="p2-choice-icon">🤝</div>
+                        <div class="text-lg" id="p2-choice-text">Hợp tác</div>
+                        <div class="text-xl font-bold text-purple-600">+<span id="p2-points">5</span> điểm</div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <button onclick="nextRound()" id="next-round-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                        ➡️ Vòng Tiếp Theo
+                    </button>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">📊 Lịch Sử Các Vòng</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-2">Vòng</th>
+                                <th class="text-center py-2" id="history-p1-name">Người chơi 1</th>
+                                <th class="text-center py-2" id="history-p2-name">Người chơi 2</th>
+                                <th class="text-center py-2">Điểm P1</th>
+                                <th class="text-center py-2">Điểm P2</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Results -->
+        <div id="results-screen" class="hidden max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl card-shadow p-8 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">🏆 Kết Quả Cuối Cùng</h2>
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="p-6 bg-blue-50 rounded-lg">
+                        <h3 class="text-xl font-bold text-blue-800" id="final-p1-name">Người chơi 1</h3>
+                        <div class="text-4xl font-bold text-blue-600 my-4" id="final-p1-score">0</div>
+                        <div class="text-sm text-blue-700">điểm</div>
+                    </div>
+                    <div class="p-6 bg-purple-50 rounded-lg">
+                        <h3 class="text-xl font-bold text-purple-800" id="final-p2-name">Người chơi 2</h3>
+                        <div class="text-4xl font-bold text-purple-600 my-4" id="final-p2-score">0</div>
+                        <div class="text-sm text-purple-700">điểm</div>
+                    </div>
+                </div>
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4" id="winner-announcement">🎉 Người chiến thắng</h3>
+                </div>
+                
+                <!-- Discussion Questions -->
+                <div class="bg-gray-50 rounded-lg p-6 mb-6 text-left">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">💭 Câu Hỏi Thảo Luận</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li>• Bạn đã chọn gì trong vòng đầu tiên? Tại sao?</li>
+                        <li>• Cảm giác của bạn thế nào khi đối tác chọn khác với bạn?</li>
+                        <li>• Bạn có tin tưởng đối tác của mình không? Niềm tin đó có thay đổi qua các vòng chơi không?</li>
+                        <li>• Tại sao hành động 'đào tẩu' lại hấp dẫn về mặt cá nhân?</li>
+                        <li>• Kết quả chung của cả hai bạn sẽ thế nào nếu cả hai luôn chọn 'hợp tác'?</li>
+                    </ul>
+                </div>
+
+                <button onclick="resetGame()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200">
+                    🔄 Chơi Lại
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            currentRound: 1,
+            totalRounds: 10,
+            player1: { name: 'Người chơi 1', score: 0, choice: null },
+            player2: { name: 'Người chơi 2', score: 0, choice: null },
+            history: [],
+            gamePhase: 'setup' // setup, playing, revealing, finished
+        };
+
+        function startGame() {
+            const p1Name = document.getElementById('player1-name').value.trim() || 'Người chơi 1';
+            const p2Name = document.getElementById('player2-name').value.trim() || 'Người chơi 2';
+            const rounds = parseInt(document.getElementById('rounds-select').value);
+
+            gameState = {
+                currentRound: 1,
+                totalRounds: rounds,
+                player1: { name: p1Name, score: 0, choice: null },
+                player2: { name: p2Name, score: 0, choice: null },
+                history: [],
+                gamePhase: 'playing'
+            };
+
+            // Update display names
+            document.getElementById('player1-display').textContent = p1Name;
+            document.getElementById('player2-display').textContent = p2Name;
+            document.getElementById('history-p1-name').textContent = p1Name;
+            document.getElementById('history-p2-name').textContent = p2Name;
+            document.getElementById('total-rounds').textContent = rounds;
+
+            // Switch screens
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            updateGameDisplay();
+        }
+
+        function makeChoice(player, choice) {
+            if (gameState.gamePhase !== 'playing') return;
+
+            if (player === 1) {
+                gameState.player1.choice = choice;
+                document.getElementById('p1-choice-status').textContent = '✅ Đã chọn';
+                document.getElementById('p1-choice-status').className = 'text-sm text-green-600 font-semibold';
+            } else {
+                gameState.player2.choice = choice;
+                document.getElementById('p2-choice-status').textContent = '✅ Đã chọn';
+                document.getElementById('p2-choice-status').className = 'text-sm text-green-600 font-semibold';
+            }
+
+            // Check if both players have made choices
+            if (gameState.player1.choice && gameState.player2.choice) {
+                document.getElementById('reveal-btn').disabled = false;
+                document.getElementById('game-status').textContent = 'Sẵn sàng công bố!';
+                document.getElementById('reveal-btn').classList.add('pulse-animation');
+            }
+
+            updateButtonStates();
+        }
+
+        function updateButtonStates() {
+            // Disable all buttons after choices are made
+            const buttons = ['p1-cooperate', 'p1-defect', 'p2-cooperate', 'p2-defect'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                if (gameState.player1.choice && id.startsWith('p1-')) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+                if (gameState.player2.choice && id.startsWith('p2-')) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        }
+
+        function revealChoices() {
+            if (!gameState.player1.choice || !gameState.player2.choice) return;
+
+            gameState.gamePhase = 'revealing';
+            
+            // Calculate points based on choices
+            let p1Points = 0, p2Points = 0;
+            
+            if (gameState.player1.choice === 'cooperate' && gameState.player2.choice === 'cooperate') {
+                p1Points = 5; p2Points = 5;
+            } else if (gameState.player1.choice === 'defect' && gameState.player2.choice === 'cooperate') {
+                p1Points = 8; p2Points = 0;
+            } else if (gameState.player1.choice === 'cooperate' && gameState.player2.choice === 'defect') {
+                p1Points = 0; p2Points = 8;
+            } else { // both defect
+                p1Points = 2; p2Points = 2;
+            }
+
+            // Update scores
+            gameState.player1.score += p1Points;
+            gameState.player2.score += p2Points;
+
+            // Add to history
+            gameState.history.push({
+                round: gameState.currentRound,
+                p1Choice: gameState.player1.choice,
+                p2Choice: gameState.player2.choice,
+                p1Points: p1Points,
+                p2Points: p2Points
+            });
+
+            // Display results
+            displayRoundResult(p1Points, p2Points);
+            updateScoreDisplay();
+            updateHistoryTable();
+            
+            document.getElementById('reveal-btn').classList.add('hidden');
+        }
+
+        function displayRoundResult(p1Points, p2Points) {
+            const resultDiv = document.getElementById('round-result');
+            
+            document.getElementById('result-round').textContent = gameState.currentRound;
+            document.getElementById('p1-result-name').textContent = gameState.player1.name;
+            document.getElementById('p2-result-name').textContent = gameState.player2.name;
+            
+            // Player 1 result
+            const p1Choice = gameState.player1.choice;
+            document.getElementById('p1-choice-icon').textContent = p1Choice === 'cooperate' ? '🤝' : '🏃';
+            document.getElementById('p1-choice-text').textContent = p1Choice === 'cooperate' ? 'Hợp tác' : 'Đào tẩu';
+            document.getElementById('p1-points').textContent = p1Points;
+            
+            // Player 2 result
+            const p2Choice = gameState.player2.choice;
+            document.getElementById('p2-choice-icon').textContent = p2Choice === 'cooperate' ? '🤝' : '🏃';
+            document.getElementById('p2-choice-text').textContent = p2Choice === 'cooperate' ? 'Hợp tác' : 'Đào tẩu';
+            document.getElementById('p2-points').textContent = p2Points;
+            
+            resultDiv.classList.remove('hidden');
+            
+            // Update next round button
+            if (gameState.currentRound >= gameState.totalRounds) {
+                document.getElementById('next-round-btn').textContent = '🏁 Xem Kết Quả Cuối';
+                document.getElementById('next-round-btn').onclick = showFinalResults;
+            }
+        }
+
+        function nextRound() {
+            gameState.currentRound++;
+            gameState.player1.choice = null;
+            gameState.player2.choice = null;
+            gameState.gamePhase = 'playing';
+            
+            // Reset UI
+            document.getElementById('round-result').classList.add('hidden');
+            document.getElementById('reveal-btn').classList.remove('hidden', 'pulse-animation');
+            document.getElementById('reveal-btn').disabled = true;
+            
+            // Reset choice status
+            document.getElementById('p1-choice-status').textContent = 'Chưa chọn';
+            document.getElementById('p1-choice-status').className = 'text-sm text-gray-500';
+            document.getElementById('p2-choice-status').textContent = 'Chưa chọn';
+            document.getElementById('p2-choice-status').className = 'text-sm text-gray-500';
+            
+            // Re-enable buttons
+            const buttons = ['p1-cooperate', 'p1-defect', 'p2-cooperate', 'p2-defect'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+            
+            updateGameDisplay();
+        }
+
+        function updateGameDisplay() {
+            document.getElementById('current-round').textContent = `Vòng ${gameState.currentRound}`;
+            document.getElementById('game-status').textContent = 'Đang chờ lựa chọn...';
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('player1-score').textContent = gameState.player1.score;
+            document.getElementById('player2-score').textContent = gameState.player2.score;
+        }
+
+        function updateHistoryTable() {
+            const tbody = document.getElementById('history-table');
+            const lastRound = gameState.history[gameState.history.length - 1];
+            
+            const row = document.createElement('tr');
+            row.className = 'border-b';
+            row.innerHTML = `
+                <td class="py-2">${lastRound.round}</td>
+                <td class="text-center py-2">${lastRound.p1Choice === 'cooperate' ? '🤝' : '🏃'}</td>
+                <td class="text-center py-2">${lastRound.p2Choice === 'cooperate' ? '🤝' : '🏃'}</td>
+                <td class="text-center py-2 font-semibold text-blue-600">+${lastRound.p1Points}</td>
+                <td class="text-center py-2 font-semibold text-purple-600">+${lastRound.p2Points}</td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function showFinalResults() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            document.getElementById('final-p1-name').textContent = gameState.player1.name;
+            document.getElementById('final-p2-name').textContent = gameState.player2.name;
+            document.getElementById('final-p1-score').textContent = gameState.player1.score;
+            document.getElementById('final-p2-score').textContent = gameState.player2.score;
+            
+            // Determine winner
+            let winnerText = '';
+            if (gameState.player1.score > gameState.player2.score) {
+                winnerText = `🎉 ${gameState.player1.name} chiến thắng!`;
+            } else if (gameState.player2.score > gameState.player1.score) {
+                winnerText = `🎉 ${gameState.player2.name} chiến thắng!`;
+            } else {
+                winnerText = '🤝 Hòa! Cả hai đều xuất sắc!';
+            }
+            document.getElementById('winner-announcement').textContent = winnerText;
+        }
+
+        function resetGame() {
+            // Reset all screens
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+            
+            // Clear history table
+            document.getElementById('history-table').innerHTML = '';
+            
+            // Reset form values
+            document.getElementById('player1-name').value = 'Người chơi 1';
+            document.getElementById('player2-name').value = 'Người chơi 2';
+            document.getElementById('rounds-select').value = '10';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97fceb4905e8046c',t:'MTc1Nzk4OTU4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
